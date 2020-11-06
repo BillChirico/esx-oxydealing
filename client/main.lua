@@ -14,7 +14,11 @@ local vehicleSpawnLocations = {
 }
 
 local drugBuyerLocations = {
-  {x = 81.57, y = -1543.34, z = 29.46, h = 149.18},
+  {x = 53.41, y = -1554.44, z = 29.46, h = 46.5},
+  {x = 55.17, y = -1551.79, z = 29.46, h = 47.5},
+  {x = 57.48, y = -1549.42, z = 29.46, h = 50.5},
+  {x = 59.41, y = -1546.99, z = 29.46, h = 69.5},
+  {x = 61.4, y = -1544.76, z = 29.46, h = 61.5}
 }
 
 Citizen.CreateThread(
@@ -188,10 +192,17 @@ Citizen.CreateThread(
 Citizen.CreateThread(
   function()
     while true do
-      if (nearDealer and IsControlJustReleased(0, 38) and not IsPedInAnyVehicle(GetPlayerPed(-1), false) and hasStartedMission) then
-        PlayAnim('mp_common', 'givetake1_a', 8.0, 5000, 0)
-        TaskTurnPedToFaceCoord(GetEntityCoords(GetPlayerPed(-1)))
+      if
+        (nearDealer and IsControlJustReleased(0, 38) and not IsPedInAnyVehicle(GetPlayerPed(-1), false) and
+          hasStartedMission)
+       then
+        -- TaskLookAtEntity(created_ped, GetPlayerPed(-1), -1)
+        PlayAnim("mp_common", "givetake1_a", 5.0, 5000, 0)
+        PlayAnimOnPed(created_ped, "mp_common", "givetake1_a", 5.0, 5000, 0)
+        MakeEntityFaceEntity(PlayerPedId(), created_ped)
+        MakeEntityFaceEntity(created_ped, PlayerPedId())
         TriggerServerEvent("sellOxy", "oxy")
+        PlayAmbientSpeech1(created_ped, 'GENERIC_THANKS', 'SPEECH_PARAMS_STANDARD')
         ClearPedTasks(created_ped)
 
         local buyer = math.randomchoice(drugBuyerLocations)
@@ -204,6 +215,7 @@ Citizen.CreateThread(
         end
       elseif (nearDealer and not IsPedInAnyVehicle(GetPlayerPed(-1), false)) then
         ESX.ShowHelpNotification("Flex ~INPUT_CONTEXT~ to sell oxy", true, true)
+        -- ESX.Game.Utils.DrawText3D(GetEntityCoords(created_ped, true), 'Flex ~INPUT_CONTEXT~ to sell oxy', 0.5)
       end
 
       Citizen.Wait(0)
@@ -221,13 +233,30 @@ AddEventHandler(
 )
 
 PlayAnim = function(dict, anim, speed, time, flag)
-  ESX.Streaming.RequestAnimDict(dict, function()
-    TaskPlayAnim(PlayerPedId(), dict, anim, speed, speed, time, flag, 1, false, false, false)
-  end)
+  ESX.Streaming.RequestAnimDict(
+    dict,
+    function()
+      TaskPlayAnim(PlayerPedId(), dict, anim, speed, speed, time, flag, 1, false, false, false)
+    end
+  )
 end
 
 PlayAnimOnPed = function(ped, dict, anim, speed, time, flag)
-  ESX.Streaming.RequestAnimDict(dict, function()
-    TaskPlayAnim(ped, dict, anim, speed, speed, time, flag, 1, false, false, false)
-  end)
+  ESX.Streaming.RequestAnimDict(
+    dict,
+    function()
+      TaskPlayAnim(ped, dict, anim, speed, speed, time, flag, 1, false, false, false)
+    end
+  )
+end
+
+MakeEntityFaceEntity = function(entity1, entity2)
+  local p1 = GetEntityCoords(entity1, true)
+  local p2 = GetEntityCoords(entity2, true)
+
+  local dx = p2.x - p1.x
+  local dy = p2.y - p1.y
+
+  local heading = GetHeadingFromVector_2d(dx, dy)
+  SetEntityHeading(entity1, heading)
 end
