@@ -2,8 +2,18 @@ ESX = nil
 
 local isInMarker = false
 local hasStartedMission = false
+local vehicle = nil
+local missionblip = nil
 
 local vehicleSpawnLocations = {
+  {x = 53.41, y = -1554.44, z = 29.46, h = 46.5},
+  {x = 55.17, y = -1551.79, z = 29.46, h = 47.5},
+  {x = 57.48, y = -1549.42, z = 29.46, h = 50.5},
+  {x = 59.41, y = -1546.99, z = 29.46, h = 69.5},
+  {x = 61.4, y = -1544.76, z = 29.46, h = 61.5}
+}
+
+local drugBuyerLocations = {
   {x = 53.41, y = -1554.44, z = 29.46, h = 46.5},
   {x = 55.17, y = -1551.79, z = 29.46, h = 47.5},
   {x = 57.48, y = -1549.42, z = 29.46, h = 50.5},
@@ -121,19 +131,31 @@ function spawnCar(car)
   end
 
   local freespot, v = getParkingPosition(vehicleSpawnLocations)
-  local vehicle = CreateVehicle(car, v.x, v.y, v.z, v.h, true, false)
+  vehicle = CreateVehicle(car, v.x, v.y, v.z, v.h, true, false)
 
-  createNPC()
+  -- SetJobBlip(-10.67, -1475.54, 30.54)
+  -- createNPC(-10.67,  -1475.54, 30.54 - 1)
+  -- local random_elem = drugBuyerLocations[keyset[math.random(#keyset)]]
+  local buyer = math.randomchoice(drugBuyerLocations)
+
+  createNPC(buyer.x, buyer.y, buyer.z)
+  SetJobBlip(buyer.x, buyer.y, buyer.z)
+
   SetNewWaypoint(v.x, v.y)
-  SetJobBlip(-10.67, -1475.54, 30.54)
   SetVehicleHasBeenOwnedByPlayer(vehicle, true)
   SetEntityAsMissionEntity(vehicle, true, true)
 end
 
-function SetJobBlip(x, y, z)
-  if DoesBlipExist(missionblip) then
-    RemoveBlip(missionblip)
+function math.randomchoice(t) --Selects a random item from a table
+  local keys = {}
+  for key, value in pairs(t) do
+      keys[#keys+1] = key --Store keys in another table
   end
+  index = keys[math.random(1, #keys)]
+  return t[index]
+end
+
+function SetJobBlip(x, y, z)
   missionblip = AddBlipForCoord(x, y, z)
   SetBlipSprite(missionblip, 514)
   SetBlipColour(missionblip, 53)
@@ -144,8 +166,10 @@ function SetJobBlip(x, y, z)
 end
 
 local created_ped = nil
-function createNPC()
-  created_ped = CreatePed(0, "g_m_y_famdnf_01", -10.67, -1475.54, 30.54 - 1, 200, true)
+function createNPC(x, y, z)
+  print("create npc")
+
+  created_ped = CreatePed(0, "g_m_y_famdnf_01", x, y, z, 200, true)
   FreezeEntityPosition(created_ped, true)
   SetEntityInvincible(created_ped, true)
   SetBlockingOfNonTemporaryEvents(created_ped, true)
@@ -155,7 +179,7 @@ end
 function ClearPedTasks(ped)
 end
 
-local missionblip = nil
+
 local blip = nil
 
 local nearDealer = false
@@ -180,14 +204,25 @@ Citizen.CreateThread(
 Citizen.CreateThread(
   function()
     while true do
-      if (nearDealer and IsControlJustReleased(0, 38)) then
+      if (nearDealer and IsControlJustReleased(0, 38) and not IsPedInAnyVehicle(GetPlayerPed(-1), false)) then
         TaskTurnPedToFaceCoord(GetEntityCoords(GetPlayerPed(-1)))
+        TriggerServerEvent("sellOxy", "oxy")
         local model = GetEntityModel(created_ped)
         SetEntityAsNoLongerNeeded(created_ped)
         SetModelAsNoLongerNeeded(model)
-        RemoveJobBlip(missionblip)
-        TriggerServerEvent("sellOxy", "oxy")
-      elseif (nearDealer) then
+        -- RemoveJobBlip(missionblip)
+
+        local buyer = math.randomchoice(drugBuyerLocations)
+
+        createNPC(buyer.x, buyer.y, buyer.z)
+        SetJobBlip(buyer.x, buyer.y, buyer.z)
+
+        print('remove blip')
+        if DoesBlipExist(missionblip) then
+          print('remove blip 2')
+          RemoveBlip(missionblip)
+        end
+      elseif (nearDealer and not IsPedInAnyVehicle(GetPlayerPed(-1), false)) then
         ESX.ShowHelpNotification("Flex ~INPUT_CONTEXT~ to sell oxy", true, true)
       end
 

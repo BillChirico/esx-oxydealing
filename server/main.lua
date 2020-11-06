@@ -13,15 +13,25 @@ AddEventHandler(
 	function(itemName)
 		local xPlayer = ESX.GetPlayerFromId(source)
 		local price = 500
-		local amount = math.random(1, 2)
+		local amount = math.random(1, 3)
 		local xItem = xPlayer.getInventoryItem(itemName)
+
+		-- Player does not have any more oxy
+		if xPlayer.getInventoryItem(itemName).count > amount then
+			amount = 1
+		end
+
+		if xPlayer.getInventoryItem(itemName).count < 1 then
+			xPlayer.showNotification('~r~You do not have any more oxy to sell!')
+			return
+		end
 
 		price = ESX.Math.Round(price * amount)
 
 		xPlayer.addMoney(price)
 
 		xPlayer.removeInventoryItem(xItem.name, amount)
-		xPlayer.showNotification(_U("dealer_sold", amount, xItem.label, ESX.Math.GroupDigits(price)))
+		xPlayer.showNotification('~g~You sold '.. amount .. ' ' .. xItem.label .. ' for a total of $'.. ESX.Math.GroupDigits(price))
 	end
 )
 
