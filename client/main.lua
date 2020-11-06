@@ -14,12 +14,7 @@ local vehicleSpawnLocations = {
 }
 
 local drugBuyerLocations = {
-  {x = 11.26, y = -1669.32, z = 29.25, h = 269.5},
-  {x = -36.08, y = -1756.84, z = 29.42, h = 320.5},
-  {x = 195.08, y = -1920.33, z = 22.57, h = 277.5},
-  {x = 359.42, y = -1720.59, z = 29.27, h = 180.5},
-  {x = 377.0, y = -1779.19, z = 29.27, h = 50.5},
-  {x = 400.12, y = -1826.71, z = 28.39, h = 35.5}
+  {x = 81.57, y = -1543.34, z = 29.46, h = 149.18},
 }
 
 Citizen.CreateThread(
@@ -156,7 +151,7 @@ end
 
 local created_ped = nil
 function createNPC(x, y, z)
-  created_ped = CreatePed(0, "g_m_y_famdnf_01", x, y, z, 200, true)
+  created_ped = CreatePed(0, "g_m_y_famdnf_01", x, y, z - 1, 200, true)
   FreezeEntityPosition(created_ped, true)
   SetEntityInvincible(created_ped, true)
   SetBlockingOfNonTemporaryEvents(created_ped, true)
@@ -194,6 +189,7 @@ Citizen.CreateThread(
   function()
     while true do
       if (nearDealer and IsControlJustReleased(0, 38) and not IsPedInAnyVehicle(GetPlayerPed(-1), false) and hasStartedMission) then
+        PlayAnim('mp_common', 'givetake1_a', 8.0, 5000, 0)
         TaskTurnPedToFaceCoord(GetEntityCoords(GetPlayerPed(-1)))
         TriggerServerEvent("sellOxy", "oxy")
         ClearPedTasks(created_ped)
@@ -223,3 +219,15 @@ AddEventHandler(
     ClearPedTasks(created_ped)
   end
 )
+
+PlayAnim = function(dict, anim, speed, time, flag)
+  ESX.Streaming.RequestAnimDict(dict, function()
+    TaskPlayAnim(PlayerPedId(), dict, anim, speed, speed, time, flag, 1, false, false, false)
+  end)
+end
+
+PlayAnimOnPed = function(ped, dict, anim, speed, time, flag)
+  ESX.Streaming.RequestAnimDict(dict, function()
+    TaskPlayAnim(ped, dict, anim, speed, speed, time, flag, 1, false, false, false)
+  end)
+end
