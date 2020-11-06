@@ -228,6 +228,7 @@ AddEventHandler(
   function()
     hasStartedMission = false
     ClearPedTasks(created_ped)
+    RemoveJobBlip(missionblip)
   end
 )
 
