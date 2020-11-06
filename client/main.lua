@@ -199,20 +199,19 @@ Citizen.CreateThread(
         -- TaskLookAtEntity(created_ped, GetPlayerPed(-1), -1)
         PlayAnim("mp_common", "givetake1_a", 5.0, 5000, 0)
         PlayAnimOnPed(created_ped, "mp_common", "givetake1_a", 5.0, 5000, 0)
+
         MakeEntityFaceEntity(PlayerPedId(), created_ped)
         MakeEntityFaceEntity(created_ped, PlayerPedId())
+        
         TriggerServerEvent("sellOxy", "oxy")
         PlayAmbientSpeech1(created_ped, 'GENERIC_THANKS', 'SPEECH_PARAMS_STANDARD')
         ClearPedTasks(created_ped)
+        RemoveJobBlip(missionblip)
 
         local buyer = math.randomchoice(drugBuyerLocations)
 
         createNPC(buyer.x, buyer.y, buyer.z)
         SetJobBlip(buyer.x, buyer.y, buyer.z)
-
-        if DoesBlipExist(missionblip) then
-          RemoveBlip(missionblip)
-        end
       elseif (nearDealer and not IsPedInAnyVehicle(GetPlayerPed(-1), false)) then
         ESX.ShowHelpNotification("Flex ~INPUT_CONTEXT~ to sell oxy", true, true)
         -- ESX.Game.Utils.DrawText3D(GetEntityCoords(created_ped, true), 'Flex ~INPUT_CONTEXT~ to sell oxy', 0.5)
