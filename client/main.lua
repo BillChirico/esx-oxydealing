@@ -58,7 +58,7 @@ Citizen.CreateThread(
       local coords = GetEntityCoords(ped)
       local locationCoords = Config.OxyStart.OxyLocation.coords
 
-      if (#(coords - locationCoords) < 2.0) then
+      if (#(coords - locationCoords) < 2.0 and not hasStartedMission) then
         isInMarker = true
       end
 
@@ -73,7 +73,7 @@ Citizen.CreateThread(
       if (isInMarker and IsControlJustReleased(0, 38)) then
         local freespot, v = getParkingPosition(vehicleSpawnLocations)
         if (not freespot) then
-          notify("~r~ There are no free spots, please wait")
+          notify("~r~ There are no free parking spots, please wait")
           Citizen.Wait(0)
         end
 
@@ -82,13 +82,14 @@ Citizen.CreateThread(
           spawnCar(car)
 
           if (not hasStartedMission) then
-            notify("~g~ Your oxy Faggio is being delivered")
+            notify("~g~ Your oxy Faggio has been delivered")
+            TriggerServerEvent("startOxyRun")
           end
 
           hasStartedMission = true
         end
       elseif (isInMarker) then
-        ESX.ShowHelpNotification("Flex ~INPUT_CONTEXT~ to start an oxy run", true, true)
+        ESX.ShowHelpNotification("Flex ~INPUT_CONTEXT~ to start dealing oxy", true, true)
       end
 
       Citizen.Wait(0)
@@ -107,7 +108,7 @@ end
 function spawnCar(car)
   -- Don't allow multiple spawns
   if (hasStartedMission) then
-    notify("~r~ Your oxy Faggio is already out!")
+    notify("~r~ Your Faggio is already out!")
     return
   end
 
@@ -129,18 +130,6 @@ function spawnCar(car)
   SetEntityAsMissionEntity(vehicle, true, true)
 end
 
-local created_ped = nil
-function createNPC()
-  created_ped = CreatePed(0, "g_m_y_famdnf_01", 76.4, -1546.4, 29.46 - 1, 200, true)
-  FreezeEntityPosition(created_ped, true)
-  SetEntityInvincible(created_ped, true)
-  SetBlockingOfNonTemporaryEvents(created_ped, true)
-  TaskStartScenarioInPlace(created_ped, "WORLD_HUMAN_COP_IDLES", 0, true)
-end
-
-local missionblip = nil
-local blip = nil
-
 function SetJobBlip(x, y, z)
   if DoesBlipExist(missionblip) then
     RemoveBlip(missionblip)
@@ -153,6 +142,21 @@ function SetJobBlip(x, y, z)
   AddTextComponentString("Destination")
   EndTextCommandSetBlipName(missionblip)
 end
+
+local created_ped = nil
+function createNPC()
+  created_ped = CreatePed(0, "g_m_y_famdnf_01", -10.67, -1475.54, 30.54 - 1, 200, true)
+  FreezeEntityPosition(created_ped, true)
+  SetEntityInvincible(created_ped, true)
+  SetBlockingOfNonTemporaryEvents(created_ped, true)
+  TaskStartScenarioInPlace(created_ped, "WORLD_HUMAN_COP_IDLES", 0, true)
+end
+
+function ClearPedTasks(ped)
+end
+
+local missionblip = nil
+local blip = nil
 
 local nearDealer = false
 
@@ -177,9 +181,14 @@ Citizen.CreateThread(
   function()
     while true do
       if (nearDealer and IsControlJustReleased(0, 38)) then
-        print('buying')
+        TaskTurnPedToFaceCoord(GetEntityCoords(GetPlayerPed(-1)))
+        local model = GetEntityModel(created_ped)
+        SetEntityAsNoLongerNeeded(created_ped)
+        SetModelAsNoLongerNeeded(model)
+        RemoveJobBlip(missionblip)
+        TriggerServerEvent("sellOxy", "oxy")
       elseif (nearDealer) then
-        ESX.ShowHelpNotification("Flex ~INPUT_CONTEXT~ to buy oxy", true, true)
+        ESX.ShowHelpNotification("Flex ~INPUT_CONTEXT~ to sell oxy", true, true)
       end
 
       Citizen.Wait(0)

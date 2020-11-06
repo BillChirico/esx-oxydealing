@@ -10,4 +10,8 @@ function notify(msg)
   DrawNotification(false, false)
 end
 
-
+function RemoveJobBlip(blip)
+  if DoesBlipExist(blip) then
+    RemoveBlip(blip)
+  end
+end
