@@ -16,13 +16,15 @@ AddEventHandler(
 		local amount = math.random(1, 3)
 		local xItem = xPlayer.getInventoryItem(itemName)
 
-		-- Player does not have any more oxy
+		-- Player does not have enough of oxy to sell so set it to 1
 		if xPlayer.getInventoryItem(itemName).count > amount then
 			amount = 1
 		end
 
+		-- Player does not have any more oxy
 		if xPlayer.getInventoryItem(itemName).count < 1 then
-			xPlayer.showNotification('~r~You do not have any more oxy to sell!')
+			xPlayer.showNotification("~r~You do not have any more oxy to sell!")
+			TriggerClientEvent("endOxyJob", source)
 			return
 		end
 
@@ -31,7 +33,9 @@ AddEventHandler(
 		xPlayer.addMoney(price)
 
 		xPlayer.removeInventoryItem(xItem.name, amount)
-		xPlayer.showNotification('~g~You sold '.. amount .. ' ' .. xItem.label .. ' for a total of $'.. ESX.Math.GroupDigits(price))
+		xPlayer.showNotification(
+			"~g~You sold " .. amount .. " " .. xItem.label .. " for a total of $" .. ESX.Math.GroupDigits(price)
+		)
 	end
 )
 
