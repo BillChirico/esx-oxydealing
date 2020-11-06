@@ -202,9 +202,9 @@ Citizen.CreateThread(
 
         MakeEntityFaceEntity(PlayerPedId(), created_ped)
         MakeEntityFaceEntity(created_ped, PlayerPedId())
-        
+
         TriggerServerEvent("sellOxy", "oxy")
-        PlayAmbientSpeech1(created_ped, 'GENERIC_THANKS', 'SPEECH_PARAMS_STANDARD')
+        PlayAmbientSpeech1(created_ped, "GENERIC_THANKS", "SPEECH_PARAMS_STANDARD")
         ClearPedTasks(created_ped)
         RemoveJobBlip(missionblip)
 
@@ -214,7 +214,7 @@ Citizen.CreateThread(
         SetJobBlip(buyer.x, buyer.y, buyer.z)
       elseif (nearDealer and not IsPedInAnyVehicle(GetPlayerPed(-1), false)) then
         ESX.ShowHelpNotification("Flex ~INPUT_CONTEXT~ to sell oxy", true, true)
-        -- ESX.Game.Utils.DrawText3D(GetEntityCoords(created_ped, true), 'Flex ~INPUT_CONTEXT~ to sell oxy', 0.5)
+      -- ESX.Game.Utils.DrawText3D(GetEntityCoords(created_ped, true), 'Flex ~INPUT_CONTEXT~ to sell oxy', 0.5)
       end
 
       Citizen.Wait(0)
@@ -247,15 +247,4 @@ PlayAnimOnPed = function(ped, dict, anim, speed, time, flag)
       TaskPlayAnim(ped, dict, anim, speed, speed, time, flag, 1, false, false, false)
     end
   )
-end
-
-MakeEntityFaceEntity = function(entity1, entity2)
-  local p1 = GetEntityCoords(entity1, true)
-  local p2 = GetEntityCoords(entity2, true)
-
-  local dx = p2.x - p1.x
-  local dy = p2.y - p1.y
-
-  local heading = GetHeadingFromVector_2d(dx, dy)
-  SetEntityHeading(entity1, heading)
 end

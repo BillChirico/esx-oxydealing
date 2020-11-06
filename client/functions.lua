@@ -24,3 +24,14 @@ function math.randomchoice(t) --Selects a random item from a table
   index = keys[math.random(1, #keys)]
   return t[index]
 end
+
+MakeEntityFaceEntity = function(entity1, entity2)
+  local p1 = GetEntityCoords(entity1, true)
+  local p2 = GetEntityCoords(entity2, true)
+
+  local dx = p2.x - p1.x
+  local dy = p2.y - p1.y
+
+  local heading = GetHeadingFromVector_2d(dx, dy)
+  SetEntityHeading(entity1, heading)
+end
